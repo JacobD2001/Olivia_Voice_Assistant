@@ -8,6 +8,8 @@ livekit-agents = "*"
 livekit-plugins-openai = "*"
 livekit-plugins-silero = "*"
 python-dotenv = "*"
+livekit-plugins-deepgram = "*"
+livekit-plugins-cartesia = "*"
 
 [dev-packages]
 
