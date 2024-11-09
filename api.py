@@ -2,7 +2,8 @@ import enum
 from typing import Annotated
 from livekit.agents import llm
 import logging
-
+#TODO: Change to check availability tool
+#TODO: Add book a call tool
 logger = logging.getLogger("temperature-control")
 logger.setLevel(logging.INFO)
 

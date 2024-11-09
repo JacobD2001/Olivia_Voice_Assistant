@@ -1,3 +1,4 @@
+# TODO: To bring down the costs we can use neets for the tts and we can use groq for speed to lower latency
 import asyncio
 
 from dotenv import load_dotenv
@@ -12,19 +13,21 @@ load_dotenv()
 async def entrypoint(ctx: JobContext):
     initial_ctx = llm.ChatContext().append(
         role="system",
-        text=(
-            "You are a voice assistant created by LiveKit. Your interface with users will be voice. "
-            "You should use short and concise responses, and avoiding usage of unpronouncable punctuation."
-        ),
+        text=("""
+            You are a voice assistant created by LiveKit. Your interface with users will be voice.
+            When asked about availability, check calendar and schedule.
+            You should use short and concise responses, and avoiding usage of unpronouncable punctuation.
+            Always try to help users schedule and manage their time effectively.
+        """)
     )
     await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
     fnc_ctx = AssistantFnc()
-
+    
     assitant = VoiceAssistant(
         vad=silero.VAD.load(),
-        stt=deepgram.STT(),
-        llm=openai.LLM.with_groq(model="llama3-8b-8192"),  # Fastest model option
-        tts=cartesia.TTS(voice="248be419-c632-4f23-adf1-5324ed7dbf1d"),
+        stt=deepgram.STT(), 
+        llm=openai.LLM(),
+        tts=cartesia.TTS(), 
         chat_ctx=initial_ctx,
         fnc_ctx=fnc_ctx,
     )
