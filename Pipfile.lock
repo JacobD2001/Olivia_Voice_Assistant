@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7effbd70158ebdd4bba00fcb143b11960cc32a564de053f28a88de2656b03375"
+            "sha256": "67bcb8a36eb078b8744d8ebbdab4381c557a5af0ec193f8e6d2cd4bab778f9f3"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -517,6 +517,15 @@
             "index": "pypi",
             "markers": "python_full_version >= '3.9.0'",
             "version": "==0.6.9"
+        },
+        "livekit-plugins-elevenlabs": {
+            "hashes": [
+                "sha256:714591e8534d2c28cdf6b9856dd94b64bbe09bbdf4ff944beb3ef5f59f22165c",
+                "sha256:ede09482f88c4ab45862602244734a60a53af025c8b11a733c3206db8272f3cf"
+            ],
+            "index": "pypi",
+            "markers": "python_full_version >= '3.9.0'",
+            "version": "==0.7.7"
         },
         "livekit-plugins-openai": {
             "hashes": [

@@ -92,3 +92,71 @@ class CalendarAssistant(llm.FunctionContext):
         except Exception as e:
             logger.error("Error checking availability: %s", str(e))
             return "Sorry, I couldn't check the calendar availability at this moment."
+
+    @llm.ai_callable(description="Book a call with a person for a specific UTC date and time.")
+    def book_call(
+        self,
+        startTime: Annotated[str, llm.TypeInfo(description="The agreed date and time for the meeting in UTC format. Must be in format: yyyy-MM-dd'T'HH:mm:ss'Z', for example: '2024-10-28T07:00:00Z'")],
+        name: Annotated[str, llm.TypeInfo(description="The full name of the person booking the meeting")],
+        email: Annotated[str, llm.TypeInfo(description="Valid email address of the person booking the meeting")],
+        timezone: Annotated[str, llm.TypeInfo(description="The attendee's IANA timezone (e.g., 'Europe/Warsaw', 'Asia/Nicosia')")],
+    ) -> str:
+        logger.info("Attempting to book call for: %s (%s) at %s in timezone: %s", 
+                   name, email, startTime, timezone)
+        
+        try:
+            # Prepare API request
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "cal-api-version": "2024-08-13",
+                "Content-Type": "application/json"
+            }
+            
+            payload = {
+                "start": startTime,
+                "eventTypeId": int(self.event_type_id),
+                "attendee": {
+                    "name": name,
+                    "email": email,
+                    "timeZone": timezone
+                }
+            }
+
+            logger.info("Request payload: %s", payload)
+
+            # Make API request
+            response = requests.post(
+                "https://api.cal.com/v2/bookings",
+                headers=headers, 
+                json=payload
+            )
+
+            logger.info("API response status: %s", response.status_code)
+            logger.info("API response body: %s", response.text)
+
+            response.raise_for_status()
+
+            # Parse the response
+            booking_data = response.json()
+            
+            # Convert UTC time to attendee's timezone for display
+            meeting_time = datetime.strptime(startTime, "%Y-%m-%dT%H:%M:%SZ")
+            local_time = meeting_time.replace(tzinfo=pytz.UTC).astimezone(pytz.timezone(timezone))
+            formatted_time = local_time.strftime('%Y-%m-%d %H:%M')
+
+            return (
+                f"Meeting successfully booked!\n"
+                f"Date and time (in your timezone): {formatted_time}\n"
+                f"Attendee: {name}\n"
+                f"Email: {email}\n"
+                f"Timezone: {timezone}"
+            )
+
+        except requests.exceptions.RequestException as e:
+            error_msg = f"Failed to book the meeting: {str(e)}"
+            logger.error(error_msg)
+            return error_msg
+        except Exception as e:
+            error_msg = f"An unexpected error occurred while booking the meeting: {str(e)}"
+            logger.error(error_msg)
+            return error_msg

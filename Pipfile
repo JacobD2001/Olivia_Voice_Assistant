@@ -11,6 +11,7 @@ python-dotenv = "*"
 livekit-plugins-deepgram = "*"
 livekit-plugins-cartesia = "*"
 pytz = "*"
+livekit-plugins-elevenlabs = "*"
 
 [dev-packages]
 
