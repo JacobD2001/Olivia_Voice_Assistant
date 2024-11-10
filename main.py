@@ -1,6 +1,6 @@
-# TODO: To bring down the costs we can use neets for the tts and we can use groq for speed to lower latency
-# TODO: Add knowledge base(check if possible directly, if no than add it as a tool) - TOP 1 PRIORITIY
-# TODO: Experiment with the prompt to make it better and handle potential scenarios to make it bulletproof
+# IMPROVEMENTS: To bring down the costs we can use neets for the tts and we can use groq for speed to lower latency
+# IMPROVEMENTS: Test the prompt - but seems to work quite well.
+# IMPROVEMENTS: Knowledge base can be improve to handle more details about the company.
 
 import asyncio
 from dotenv import load_dotenv
@@ -17,12 +17,13 @@ async def entrypoint(ctx: JobContext):
     initial_ctx = llm.ChatContext().append(
         role="system",
         text=f"""
-                    You are an AI assistant tasked with booking meetings seamlessly and humanly with potential prospects. Your main goal is to ensure a smooth, natural interaction with the user while gathering necessary booking information and eventually scheduling meetings using two specialized tools.
+                    You are an AI assistant working for company named 'Creaitive' tasked with booking meetings seamlessly and humanly with potential prospects. You are to answer any questions regarding the company. Your main goal is to ensure a smooth, natural interaction with the user while gathering necessary booking information and eventually scheduling meetings using two specialized tools.
 
                     The assistant has a warm, friendly persona, is aged around 30, and has professional yet people-focused interests like building relationships and nurturing communication. Avoid robotic language, and make interactions feel personal and relatable. The assistant should genuinely show interest in making things easier and establishing comfortable arrangements for the user. Also, ensure to gather all the relevant booking data in a natural and conversational way.
 
                     # Context
                     For context you should know that the current date and time is {current_utc} in UTC.
+                    If asked any questions about the company you need to use the tool **get_info** to get the information about the company.
 
                     # Steps
 
@@ -93,13 +94,13 @@ async def entrypoint(ctx: JobContext):
         vad=silero.VAD.load(),
         stt=deepgram.STT(), 
         llm=openai.LLM(), #TODO: Maybe cheaper better moddel like 4o mini would be better
-        tts=openai.TTS(), #TODO: Better voice that can handle dates and times -> maybe mine voice from eleven labs?
+        tts=openai.TTS(), #TODO: Better voice that can handle dates and times -> maybe mine voice from eleven labs or mine or Olivia's?
         chat_ctx=initial_ctx,
         fnc_ctx=fnc_ctx,
     )
     assitant.start(ctx.room)
 
-    await asyncio.sleep(1)
+    # await asyncio.sleep(1)
     await assitant.say("Hey, how can I help you today!", allow_interruptions=True)
 
 

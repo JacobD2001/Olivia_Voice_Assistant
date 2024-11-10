@@ -1,8 +1,15 @@
-# TODO: This code might be a bit cleaned up and refactored, moved to .env, remove comments, improve logging.
+# REVIEW: This code might be a bit cleaned up and refactored, moved to .env, remove comments, improve logging.
+
 from typing import Annotated
 from datetime import datetime, timedelta
 import pytz
 from livekit.agents import llm
+from llama_index.core import (
+    SimpleDirectoryReader,
+    StorageContext,
+    VectorStoreIndex,
+    load_index_from_storage,
+)
 import logging
 import requests
 import os
@@ -22,6 +29,22 @@ class CalendarAssistant(llm.FunctionContext):
         self.event_type_id = os.getenv('CAL_EVENT_TYPE_ID')
         if not all([self.api_url, self.api_key, self.event_type_id]):
             raise ValueError("Missing required environment variables")
+
+        # Initialize the company's data index
+        self._initialize_index()
+
+    def _initialize_index(self):
+        PERSIST_DIR = "./query-engine-storage"
+        if not os.path.exists(PERSIST_DIR):
+            # Load documents and create the index
+            documents = SimpleDirectoryReader('data').load_data()
+            self.index = VectorStoreIndex.from_documents(documents)
+            # Persist the index for future use
+            self.index.storage_context.persist(persist_dir=PERSIST_DIR)
+        else:
+            # Load the existing index
+            storage_context = StorageContext.from_defaults(persist_dir=PERSIST_DIR)
+            self.index = load_index_from_storage(storage_context)
 
     @llm.ai_callable(description="Get available calendar slots starting from a specific UTC date and time.")
     def get_available_slots(
@@ -161,3 +184,16 @@ class CalendarAssistant(llm.FunctionContext):
             error_msg = f"An unexpected error occurred while booking the meeting: {str(e)}"
             logger.error(error_msg)
             return error_msg
+        
+    @llm.ai_callable(description="Get information about a specific topic related to the company.")
+    async def get_info(
+        self,
+        query: Annotated[str, llm.TypeInfo(description="The topic or question to query about the company.")]
+    ) -> str:
+        try:
+            query_engine = self.index.as_query_engine(use_async=True)
+            res = await query_engine.aquery(query)
+            return str(res)
+        except Exception as e:
+            logging.error(f"Error querying company data: {e}")
+            return "I'm sorry, I couldn't retrieve that information at the moment."

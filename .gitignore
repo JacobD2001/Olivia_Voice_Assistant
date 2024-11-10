@@ -33,3 +33,5 @@ ENV/
 
 # mine
 data/
+prompts/
+query-engine-storage/
