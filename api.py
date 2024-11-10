@@ -1,3 +1,4 @@
+# TODO: This code might be a bit cleaned up and refactored, moved to .env, remove comments, improve logging.
 from typing import Annotated
 from datetime import datetime, timedelta
 import pytz

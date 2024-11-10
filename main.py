@@ -1,5 +1,7 @@
 # TODO: To bring down the costs we can use neets for the tts and we can use groq for speed to lower latency
-# NOTE: Checking the availability works quite well so the next steps would be adjusting the prompt, adjusting the TTS, and adding tool for booking calls, than try to publish it for web 
+# TODO: Add knowledge base(check if possible directly, if no than add it as a tool) - TOP 1 PRIORITIY
+# TODO: Experiment with the prompt to make it better and handle potential scenarios to make it bulletproof
+
 import asyncio
 from dotenv import load_dotenv
 from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli, llm
@@ -12,7 +14,6 @@ load_dotenv()
 
 async def entrypoint(ctx: JobContext):
     current_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-    #TODO: Adjust this prompt
     initial_ctx = llm.ChatContext().append(
         role="system",
         text=f"""
@@ -91,8 +92,8 @@ async def entrypoint(ctx: JobContext):
     assitant = VoiceAssistant(
         vad=silero.VAD.load(),
         stt=deepgram.STT(), 
-        llm=openai.LLM(),
-        tts=openai.TTS(), #TODO: Better voice that can handle dates and times
+        llm=openai.LLM(), #TODO: Maybe cheaper better moddel like 4o mini would be better
+        tts=openai.TTS(), #TODO: Better voice that can handle dates and times -> maybe mine voice from eleven labs?
         chat_ctx=initial_ctx,
         fnc_ctx=fnc_ctx,
     )
