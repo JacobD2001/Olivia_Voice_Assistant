@@ -1,5 +1,6 @@
 # IMPROVEMENTS: To bring down the costs we can use neets for the tts and we can use groq for speed to lower latency
 # IMPROVEMENTS: Test the prompt - but seems to work quite well.
+# IMPROVEMENTS: Is 4o mini enough? Maybe we should use 4o?
 # IMPROVEMENTS: Knowledge base can be improve to handle more details about the company.
 
 # TODO: Deploy agent to the cloud - I need to read more about virtual room and how livekit works
@@ -9,7 +10,7 @@ import asyncio
 from dotenv import load_dotenv
 from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli, llm
 from livekit.agents.voice_assistant import VoiceAssistant
-from livekit.plugins import openai, silero, deepgram, cartesia
+from livekit.plugins import openai, silero, deepgram, cartesia, elevenlabs
 from api import CalendarAssistant
 from datetime import datetime, timezone
 
@@ -92,12 +93,13 @@ async def entrypoint(ctx: JobContext):
     )
     await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
     fnc_ctx = CalendarAssistant()  
-    
+    # TODO: Maybe cheaper better moddel like 4o mini would be better
+    # TODO: Better voice that can handle dates and times -> maybe mine voice from eleven labs or mine or Olivia's?
     assitant = VoiceAssistant(
         vad=silero.VAD.load(),
         stt=deepgram.STT(), 
-        llm=openai.LLM(), #TODO: Maybe cheaper better moddel like 4o mini would be better
-        tts=openai.TTS(), #TODO: Better voice that can handle dates and times -> maybe mine voice from eleven labs or mine or Olivia's?
+        llm=openai.LLM(model="gpt-4o-mini", temperature=0.5), 
+        tts=openai.TTS(),
         chat_ctx=initial_ctx,
         fnc_ctx=fnc_ctx,
     )
