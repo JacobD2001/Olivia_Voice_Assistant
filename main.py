@@ -2,6 +2,9 @@
 # IMPROVEMENTS: Test the prompt - but seems to work quite well.
 # IMPROVEMENTS: Knowledge base can be improve to handle more details about the company.
 
+# TODO: Deploy agent to the cloud - I need to read more about virtual room and how livekit works
+# TODO: Add logs to save them somewhere for me
+
 import asyncio
 from dotenv import load_dotenv
 from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli, llm
