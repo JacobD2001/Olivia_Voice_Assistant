@@ -90,10 +90,7 @@ async def entrypoint(ctx: JobContext):
                     - Clearly differentiate between availability check and booking processes.
                     - Use placeholders for [name], [email], and [timezone] to prompt seamlessly and gather required data without overwhelming the user.        """
     )
-    await ctx.connect(
-        auto_subscribe=AutoSubscribe.AUDIO_ONLY,
-        room_name='default-room'  # Ensure this matches the room in the token
-    )
+    await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
     fnc_ctx = CalendarAssistant()  
     
     assitant = VoiceAssistant(
