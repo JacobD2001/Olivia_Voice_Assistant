@@ -1,8 +1,6 @@
 # IMPROVEMENTS: Test the prompt - but seems to work quite well.
 # IMPROVEMENTS: Knowledge base can be improve to handle more details about the company.
 
-# TODO: Add logs to save them somewhere for me
-
 import asyncio
 from dotenv import load_dotenv
 from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli, llm
@@ -103,7 +101,10 @@ async def entrypoint(ctx: JobContext):
                     - For availability check, collect only date, time, and timezone.
                     - For booking, collect all details including name, email and proper datetime format.
                     - Clearly differentiate between availability check and booking processes.
-                    - Use placeholders for [name], [email], and [timezone] to prompt seamlessly and gather required data without overwhelming the user.        """
+                    - Use placeholders for [name], [email], and [timezone] to prompt seamlessly and gather required data without overwhelming the user. 
+                    - NEVER say thing like "IANA timezone" to the user or "UTC format" and similar, the interaction should be human like and natural.   
+                    - Always double check the email address and name provided by the user.
+                    """
     )
     await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
     fnc_ctx = CalendarAssistant()  
@@ -112,7 +113,7 @@ async def entrypoint(ctx: JobContext):
     assitant = VoiceAssistant(
         vad=silero.VAD.load(),
         stt=deepgram.STT(), 
-        llm=openai.LLM(model="gpt-3.5-turbo"), 
+        llm=openai.LLM(model="gpt-4o-mini"), 
         tts=tts_instance, 
         chat_ctx=initial_ctx,
         fnc_ctx=fnc_ctx,
