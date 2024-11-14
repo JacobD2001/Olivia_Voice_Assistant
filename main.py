@@ -1,20 +1,34 @@
-# IMPROVEMENTS: To bring down the costs we can use neets for the tts and we can use groq for speed to lower latency
 # IMPROVEMENTS: Test the prompt - but seems to work quite well.
-# IMPROVEMENTS: Is 4o mini enough? Maybe we should use 4o?
 # IMPROVEMENTS: Knowledge base can be improve to handle more details about the company.
 
-# TODO: Deploy agent to the cloud - I need to read more about virtual room and how livekit works
 # TODO: Add logs to save them somewhere for me
 
 import asyncio
 from dotenv import load_dotenv
 from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli, llm
 from livekit.agents.voice_assistant import VoiceAssistant
-from livekit.plugins import openai, silero, deepgram, cartesia, elevenlabs
+from livekit.plugins import openai, silero, deepgram, elevenlabs
+from livekit.plugins.elevenlabs import Voice, TTS, VoiceSettings
 from api import CalendarAssistant
 from datetime import datetime, timezone
 
 load_dotenv()
+
+# voice_settings = VoiceSettings(
+#     stability=0.7,
+#     similarity_boost=0.9
+# )
+
+custom_voice = Voice(
+    id='kPzsL2i3teMYv0FxEYQ6', 
+    name='Hope',
+    category='premade'
+    #settings=voice_settings
+)
+
+tts_instance = TTS(
+    voice = custom_voice
+)
 
 async def entrypoint(ctx: JobContext):
     current_utc = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
@@ -98,15 +112,14 @@ async def entrypoint(ctx: JobContext):
     assitant = VoiceAssistant(
         vad=silero.VAD.load(),
         stt=deepgram.STT(), 
-        llm=openai.LLM(model="gpt-4o-mini", temperature=0.5), 
-        tts=openai.TTS(),
+        llm=openai.LLM(model="gpt-3.5-turbo"), 
+        tts=tts_instance, 
         chat_ctx=initial_ctx,
         fnc_ctx=fnc_ctx,
     )
     assitant.start(ctx.room)
-
     # await asyncio.sleep(1)
-    await assitant.say("Hey, how can I help you today!", allow_interruptions=True)
+    await assitant.say("Hey, It's Olivia from Creaitive, how Can I help you today?!", allow_interruptions=True)
 
 
 if __name__ == "__main__":
